@@ -12,7 +12,7 @@ fi
 function nginxtest {
   TMP_NGINX="$(mktemp)"
   # Replaces hosts to fake the DNS lookup check
-  awk '/proxy_pass|proxy_redirect/{sub(/(dockci|dockci-logserve|dockci-rabbit):/, "localhost:", $0)}{print}' nginx.conf > "$TMP_NGINX"
+  awk '/proxy_pass|proxy_redirect/{sub(/(dockci|dockci-logserve|dockci-rabbit):/, "localhost:", $0)}{print}' /etc/nginx/nginx.conf > "$TMP_NGINX"
   /usr/sbin/nginx -t -c "$TMP_NGINX"
 }
 function ci {
