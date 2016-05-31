@@ -19,7 +19,15 @@ function ci {
   nginxtest
 }
 function run {
-  /usr/sbin/nginx -c "/etc/nginx/nginx.conf"
+  TMP_NGINX="$(mktemp)"
+  dockci_url="${DOCKCI_PORT_5000_TCP_ADDR:-dockci}:${DOCKCI_PORT_5000_TCP_PORT:-5000}"
+  rabbitmq_url="${RABBITMQ_PORT_15674_TCP_ADDR:-rabbitmq}:${RABBITMQ_PORT_15674_TCP_PORT:-15674}"
+  logserve_url="${LOGSERVE_PORT_8080_TCP_ADDR:-logserve}:${LOGSERVE_PORT_8080_TCP_PORT:-8080}"
+  awk "/proxy_pass|proxy_redirect/{sub(/dockci:5000/, \"$dockci_url\", \$0)}{print}" /etc/nginx/nginx.conf |
+  awk "/proxy_pass|proxy_redirect/{sub(/rabbitmq:15674/, \"$rabbitmq_url\", \$0)}{print}" |
+  awk "/proxy_pass|proxy_redirect/{sub(/logserve:8080/, \"$logserve_url\", \$0)}{print}" > "$TMP_NGINX"
+
+  /usr/sbin/nginx -c "$TMP_NGINX"
 }
 
 case "$1" in
